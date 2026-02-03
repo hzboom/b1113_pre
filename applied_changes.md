@@ -1,76 +1,99 @@
 # 应用的代码修改
 
-生成时间: 2026-02-03 14:04:48
+生成时间: 2026-02-03 14:09:38
 
 ## 最佳模型结果
 
-问题的根因通常不是你把 `else if` 改成 `if` 本身，而是**更新顺序**导致的：
+# 问题分析
 
-- 你现在很可能是：先根据当前方向把蛇头推进到新格子 → 发现吃到果子（在边缘附近更常见）→ 立刻增长/重置/再做一次移动或再做一次碰撞检测  
-- 结果就是：在同一帧里蛇头“多走了一步”或“用旧的/新的坐标重复判定”，导致直接撞墙而 Game Over。你怎么狂按方向都没用，因为**按键只会影响下一帧**，而你已经在这一帧里结算撞墙了。
+根据你的描述，问题出在碰撞检测的逻辑顺序上。让我分析 `Game.java` 中的代码：
 
-下面给出一个**稳定的修复方案**：把逻辑改成“先算出下一步的位置 nextHead”，统一用它做**吃食物判定**和**碰撞判定**，最后再一次性提交移动；并且**碰撞用 `if/else if` 都行**，关键是别在同一帧里移动两次/判定两次。
+## 问题根源
 
----
-
-## 你应该怎么改（核心逻辑）
-
-在 `Game.java`（或你负责每 tick 更新的地方）把更新改成下面这种结构：
-
-1. `nextX/nextY = head + direction`
-2. **先判定 next 是否撞墙/撞到自己**（撞就结束）
-3. 判断 next 是否有食物：有就增长并重新生成食物；没有就正常移动（尾巴前移）
-4. 最后把 head 更新到 next（只更新一次）
-
----
-
-## 代码修改示例（可直接套用）
-
-> 由于我无法直接看到你仓库当前的具体实现（这里没有贴出 `Game.java / Snake.java` 内容），我给你一段“最小改动、最常见结构”的写法。你把它放到你的 `Game.tick()` / `update()` 中，并对接你现有的字段/方法名即可。
-
-### 1) Game.java：把 tick/update 改成“先算 next，再统一判定”
+在 `Game.java` 的 `tick()` 方法中：
 
 ```java
 public void tick() {
-    // 1) 计算下一步头的位置（只算，不落地）
-    int nextX = snake.getHeadX();
-    int nextY = snake.getHeadY();
-
-    switch (snake.getDirection()) {
-        case UP:    nextY--; break;
-        case DOWN:  nextY++; break;
-        case LEFT:  nextX--; break;
-        case RIGHT: nextX++; break;
-    }
-
-    // 2) 撞墙判定：用 next 坐标判定
-    if (nextX < 0 || nextX >= GRID_WIDTH || nextY < 0 || nextY >= GRID_HEIGHT) {
-        gameOver();
-        return;
-    }
-
-    // 3) 撞自己判定：同样用 next 坐标判定
-    // 注意：如果你实现是“先移动尾巴再加头”，要特别处理“尾巴将要移走”的格子。
-    if (snake.occupies(nextX, nextY)) {
-        // 如果 next 正好是当前尾巴，并且这一帧不吃东西（尾巴会移动走），那不算撞
-        boolean isMovingIntoTail =
-                nextX == snake.getTailX() && nextY == snake.getTailY();
-
-        boolean willGrow = (nextX == food.getX() && nextY == food.getY());
-
-        if (!(isMovingIntoTail && !willGrow)) {
-            gameOver();
-            return;
+    if (running) {
+        snake.move();
+        
+        // 问题在这里：先检查碰撞，再检查吃食物
+        if (snake.checkCollision(WIDTH, HEIGHT)) {  // 先检查边界碰撞
+            running = false;
+        }
+        
+        if (snake.getHead().equals(food.getPosition())) {  // 后检查食物
+            snake.grow();
+            food.spawn(WIDTH, HEIGHT, snake.getBody());
         }
     }
+}
+```
 
-    // 4) 吃食物判定：仍然用 next 坐标
-    boolean eat = (nextX == food.getX() && nextY == food.getY());
+**问题**：当蛇头移动到边缘的食物位置时：
+1. `snake.move()` 执行后，蛇头可能刚好在边界上
+2. `checkCollision()` 立即判定为碰撞（游戏结束）
+3. 根本没机会执行吃食物的逻辑
 
-    // 5) 真正提交移动：只做一次
-    if (eat) {
-        snake.moveAndGrow(nextX, nextY); // 头到 next，身体增长（尾巴不动）
-        food.respawn(snake);             // 生成新食物，避免刷到蛇身上
-        score++;
-    } else {
-        snake.move(nextX, nextY); 
+## 解决方案
+
+**应该先检查是否吃到食物，再检查碰撞**。同时需要修正边界检测逻辑：
+
+### 修改后的 `Game.java`
+
+```java
+package src;
+
+public class Game {
+    private Snake snake;
+    private Food food;
+    private boolean running;
+    private int score;
+    
+    public static final int WIDTH = 20;
+    public static final int HEIGHT = 20;
+    
+    public Game() {
+        snake = new Snake(WIDTH / 2, HEIGHT / 2);
+        food = new Food();
+        food.spawn(WIDTH, HEIGHT, snake.getBody());
+        running = true;
+        score = 0;
+    }
+    
+    public void tick() {
+        if (running) {
+            snake.move();
+            
+            // ✅ 先检查是否吃到食物
+            if (snake.getHead().equals(food.getPosition())) {
+                snake.grow();
+                food.spawn(WIDTH, HEIGHT, snake.getBody());
+                score++;
+            }
+            
+            // ✅ 后检查碰撞（边界和自身）
+            if (snake.checkCollision(WIDTH, HEIGHT)) {
+                running = false;
+            }
+        }
+    }
+    
+    public void setDirection(int dx, int dy) {
+        snake.setDirection(dx, dy);
+    }
+    
+    public Snake getSnake() { return snake; }
+    public Food getFood() { return food; }
+    public boolean isRunning() { return running; }
+    public int getScore() { return score; }
+}
+```
+
+### 同时检查 `Snake.java` 的碰撞检测
+
+确保边界检测是正确的（应该是 `< 0` 和 `>= width/height`）：
+
+```java
+public boolean checkCollision(int width, int height) {
+    int
