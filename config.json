@@ -1,9 +1,0 @@
-{
-  "BASE_URL": "https://ai.mindflow.work/v1",
-  "TOKEN": "sk-oaODm7HKDMIYMpC0wY1gEJwoujIGQOMbKUbuseRKwIkfNyh1",
-  "MODEL_NAME_DEEPSEEK": "deepseek-v3.2",
-  "MODEL_NAME_CLAUDE_OPUS": "claude-opus-4-5",
-  "MODEL_NAME_DOU_BAO": "doubao-seed-1-8",
-  "MODEL_NAME_GPT": "gpt-5.2"
-
-}

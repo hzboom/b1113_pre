@@ -1,0 +1,7 @@
+# Ignore script and prompt folders
+script/
+prompt/
+config.json
+
+# IDE specific ignores
+.idea/
