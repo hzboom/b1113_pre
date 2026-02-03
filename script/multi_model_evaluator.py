@@ -258,7 +258,7 @@ class ModelClient:
         last_exception = None
         for attempt in range(max_retries + 1):
             try:
-                response = requests.post(url, headers=self.headers, json=data, timeout=60)
+                response = requests.post(url, headers=self.headers, json=data, timeout=120)
                 response.raise_for_status()
                 return response.json()
             except requests.exceptions.RequestException as e:
@@ -443,7 +443,7 @@ class GitManager:
             return False
     
     def merge_to_main(self, branch_name: str) -> bool:
-        """合并到main分支"""
+        """合并到main分支（仅本地合并，不拉取远程更新）"""
         try:
             # 切换到main
             subprocess.run(
@@ -452,12 +452,17 @@ class GitManager:
                 check=True
             )
             
-            # 拉取最新
-            subprocess.run(
-                ["git", "pull"],
-                cwd=self.project_path,
-                check=True
-            )
+            # 尝试拉取最新，但忽略错误（仅本地合并）
+            try:
+                subprocess.run(
+                    ["git", "pull"],
+                    cwd=self.project_path,
+                    check=True,
+                    capture_output=True
+                )
+                logger.debug("已拉取远程更新")
+            except subprocess.CalledProcessError as e:
+                logger.warning(f"拉取远程更新失败，继续本地合并: {e}")
             
             # 合并
             subprocess.run(
@@ -473,19 +478,9 @@ class GitManager:
             return False
     
     def push_to_github(self) -> bool:
-        """推送到GitHub"""
-        try:
-            subprocess.run(
-                ["git", "push", "origin", "main"],
-                cwd=self.project_path,
-                check=True
-            )
-            
-            logger.info("已推送到GitHub")
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.error(f"推送失败: {e}")
-            return False
+        """推送到GitHub（已禁用，仅本地合并）"""
+        logger.info("推送功能已禁用，仅进行本地合并")
+        return True
     
     def create_branch(self, branch_name: str) -> bool:
         """创建新分支"""
@@ -672,9 +667,9 @@ class MultiModelEvaluator:
                             logger.warning("代码差异报告生成失败，但继续流程")
                         
                         if self.git_manager.merge_to_main(branch_name):
-                            self.git_manager.push_to_github()
+                            logger.info("已成功合并到main分支（GitHub推送已禁用）")
                         else:
-                            logger.warning("合并到main失败，跳过推送")
+                            logger.warning("合并到main失败")
                     else:
                         logger.warning("提交更改失败，跳过合并")
                 else:
