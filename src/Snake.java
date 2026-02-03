@@ -13,6 +13,9 @@ public class Snake {
     // Variable to track movement direction
     private String move;
 
+    // Flag to indicate if the snake should grow on the next move
+    private boolean growPending = false;
+
     /**
      * Constructor - Initializes the snake with three segments at the center of the game board.
      */
@@ -42,6 +45,7 @@ public class Snake {
      * Moves the snake in the current direction.
      * The movement is performed by adding a new head segment in the movement direction
      * and removing the last segment to maintain the snake's length.
+     * If growPending is true, the last segment is not removed, causing the snake to grow.
      */
 
     public void move() {
@@ -63,33 +67,20 @@ public class Snake {
 
             // Add the new head to the front of the snake's body
             body.add(0, temp);
-            // Remove the last segment to maintain the same length
-            body.remove(body.size() - 1);
+            // Remove the last segment only if not growing
+            if (!growPending) {
+                body.remove(body.size() - 1);
+            } else {
+                growPending = false; // Reset flag after growth
+            }
         }
     }
 
     /**
-     * Grows the snake by adding a new head segment in the current movement direction.
+     * Sets the grow pending flag, causing the snake to grow on the next move.
      */
-
-    public void grow() {
-        Rectangle first = body.get(0); // Get the current head position
-
-        Rectangle temp = new Rectangle(Game.dimension, Game.dimension);
-
-        // Determine the new head position based on the movement direction
-        if (move.equals("UP")) {
-            temp.setLocation(first.x, first.y - Game.dimension);
-        } else if (move.equals("DOWN")) {
-            temp.setLocation(first.x, first.y + Game.dimension);
-        } else if (move.equals("LEFT")) {
-            temp.setLocation(first.x - Game.dimension, first.y);
-        } else { // "RIGHT"
-            temp.setLocation(first.x + Game.dimension, first.y);
-        }
-
-        // Add the new head to the front of the snake's body without removing the last segment (growth)
-        body.add(0, temp);
+    public void setGrowPending(boolean pending) {
+        this.growPending = pending;
     }
 
     /**
@@ -130,6 +121,28 @@ public class Snake {
 
     public String getMove() {
         return move;
+    }
+
+    /**
+     * Gets the X-coordinate of the next head position if the snake moves in the current direction.
+     */
+    public int getNextX() {
+        if (move.equals("NOTHING")) return getX();
+        int dx = 0;
+        if (move.equals("LEFT")) dx = -Game.dimension;
+        else if (move.equals("RIGHT")) dx = Game.dimension;
+        return getX() + dx;
+    }
+
+    /**
+     * Gets the Y-coordinate of the next head position if the snake moves in the current direction.
+     */
+    public int getNextY() {
+        if (move.equals("NOTHING")) return getY();
+        int dy = 0;
+        if (move.equals("UP")) dy = -Game.dimension;
+        else if (move.equals("DOWN")) dy = Game.dimension;
+        return getY() + dy;
     }
 
     // Methods to change the movement direction of the snake
