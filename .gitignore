@@ -2,6 +2,7 @@
 script/
 prompt/
 config.json
+analysis.md
 
 # IDE specific ignores
 .idea/
