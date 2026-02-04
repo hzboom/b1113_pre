@@ -1,0 +1,116 @@
+[
+  {
+    "rubric_id": "R01",
+    "rubric_content": "代码必须修复当蛇在靠近游戏区域边缘吃到食物时，游戏会立即结束的Bug。",
+    "score": "1",
+    "rationale": "修改后的代码将碰撞检测（check_wall_collision/check_self_collision）从食物检测条件中移除，并移至主循环的适当位置（根据新增代码片段，碰撞检测在移动后独立执行），避免了在边缘吃到食物时因先执行碰撞检测而立即结束游戏的问题。"
+  },
+  {
+    "rubric_id": "R02",
+    "rubric_content": "代码必须确保蛇的碰撞检测逻辑正确，防止蛇在吃到食物后因逻辑错误而立即判定为与墙壁或自身碰撞。",
+    "score": "1",
+    "rationale": "代码变更将蛇的移动（player.move()）与食物碰撞检测分离。现在蛇总是先移动，再检测是否吃到食物。吃到食物后执行grow()，而碰撞检测在独立的逻辑块中执行（根据新增代码片段），避免了旧逻辑中因nextHead可能为null或顺序问题导致的误判。"
+  },
+  {
+    "rubric_id": "R03",
+    "rubric_content": "代码必须确保蛇不能移动到游戏网格（Grid）边界之外。",
+    "score": "1",
+    "rationale": "check_wall_collision()函数（未在变更中显示修改，但被保留并调用）应继续负责边界检测。修改后的移动逻辑（在Snake.java中内联计算新头部位置）仍然基于网格维度（Game.dimension）计算新位置，没有改变边界约束的基本机制。"
+  },
+  {
+    "rubric_id": "R04",
+    "rubric_content": "代码中关于蛇移动、食物生成和碰撞检测的逻辑顺序或条件判断（if/else if）必须合理，避免逻辑冲突或遗漏。",
+    "score": "1",
+    "rationale": "修改后的Game.java主循环逻辑顺序变为：1. 蛇移动（player.move()）；2. 检测食物碰撞（if (check_food_collision())）；3. 独立的碰撞检测（根据新增代码片段，在移动后执行check_wall_collision/check_self_collision）。此顺序更清晰，避免了旧逻辑中嵌套if-else可能导致的逻辑遗漏。"
+  },
+  {
+    "rubric_id": "R05",
+    "rubric_content": "修复方案不应引入新的、明显的Bug（例如，蛇穿墙、食物生成在蛇体内、控制失灵等）。",
+    "score": "1",
+    "rationale": "变更主要重构了逻辑顺序和内联了头部位置计算，没有修改边界检测、食物生成算法（food.random_spawn()）或输入控制的核心逻辑。因此，没有引入所述的新明显Bug。"
+  },
+  {
+    "rubric_id": "R06",
+    "rubric_content": "代码应遵循Java命名规范（如类名首字母大写，变量名驼峰式等）。",
+    "score": "1",
+    "rationale": "变更中涉及的类名（Game, Snake）、方法名（check_food_collision, getX, getY, random_spawn）和变量名（body, move, dimension, first, temp）均符合Java命名规范。"
+  },
+  {
+    "rubric_id": "R07",
+    "rubric_content": "代码应保持适当的缩进和格式一致性，以增强可读性。",
+    "score": "1",
+    "rationale": "提供的代码片段显示使用了一致的缩进（通常是4个空格或一个制表符）和代码块格式，没有发现格式混乱的问题。"
+  },
+  {
+    "rubric_id": "R08",
+    "rubric_content": "修改的代码部分应有清晰的注释，解释修复的逻辑或关键变更点。",
+    "score": "0",
+    "rationale": "变更的代码片段中，虽然保留了一些旧注释（如\"// Get the current head position\"），但没有新增注释来解释此次重构（如逻辑顺序变更、移除getNextHead方法的原因）是如何修复边缘碰撞Bug的。"
+  },
+  {
+    "rubric_id": "R09",
+    "rubric_content": "游戏的主循环（Game Loop）逻辑应保持清晰，确保画面更新、输入处理和状态判断的顺序合理。",
+    "score": "1",
+    "rationale": "从变更内容推断，主循环逻辑被简化并重新组织：先处理移动，再处理食物交互，最后处理碰撞与状态。这个顺序符合游戏循环的常见模式（更新状态->检测交互->渲染），逻辑更清晰。"
+  },
+  {
+    "rubric_id": "R10",
+    "rubric_content": "蛇（Snake）、食物（Food）、游戏（Game）等核心类应保持高内聚、低耦合，避免在修复Bug时破坏现有的模块化结构。",
+    "score": "1",
+    "rationale": "修复方案主要修改了Game类中的逻辑顺序和Snake类中的移动计算细节。Snake类移除了getNextHead方法，但将其逻辑内联，职责未变。Food类未被修改。类之间的交互（如Game调用Snake.move()和check_food_collision()）保持原有模式，没有显著增加耦合度。"
+  },
+  {
+    "rubric_id": "R11",
+    "rubric_content": "游戏画面更新（帧率）应保持稳定，避免因修复逻辑而引入明显的卡顿或闪烁。",
+    "score": "1",
+    "rationale": "变更没有引入复杂的计算、循环或耗时的操作。逻辑简化（移除了一些条件分支）可能略微提升性能，不会导致卡顿或闪烁。"
+  },
+  {
+    "rubric_id": "R12",
+    "rubric_content": "代码不应包含任何硬编码的敏感信息（如数据库密码、API密钥）。",
+    "score": "1",
+    "rationale": "提供的代码片段仅为游戏逻辑，不包含任何数据库密码、API密钥等敏感信息。"
+  },
+  {
+    "rubric_id": "R13",
+    "rubric_content": "游戏逻辑应能正确处理并发事件的潜在风险（尽管Swing是单线程的，但需确保事件监听器与游戏状态更新的线程安全）。",
+    "score": "1",
+    "rationale": "变更没有涉及多线程编程或修改事件监听器与游戏状态更新之间的交互方式。游戏状态（如graphics.state）的修改仍然发生在游戏循环的主线程（Event Dispatch Thread的Swing Timer中），符合Swing的单线程模型。"
+  },
+  {
+    "rubric_id": "R14",
+    "rubric_content": "修复方案应避免使用已被弃用（Deprecated）的Java AWT/Swing方法或类。",
+    "score": "1",
+    "rationale": "变更中使用的类（如Rectangle）和方法（如setLocation）均为Java标准库中未被弃用的部分。删除了未使用的import java.awt.Rectangle，但代码中仍在使用Rectangle类，这本身不是问题，因为它是java.awt包的核心类。"
+  },
+  {
+    "rubric_id": "R15",
+    "rubric_content": "代码变更应尽量保持局部性，避免为了修复一个边缘碰撞Bug而大规模重构核心游戏逻辑类。",
+    "score": "0",
+    "rationale": "修复方案涉及修改了两个核心类（Game和Snake），移除了Snake类中的一个关键方法（getNextHead）并内联其逻辑，同时重构了Game主循环的条件结构。这可以被视为对核心游戏逻辑进行了中等规模的重构，而非最小化的局部修改。"
+  },
+  {
+    "rubric_id": "R16",
+    "rubric_content": "游戏应具备在碰撞发生后（游戏结束）清晰地向玩家反馈状态的能力（例如，显示“Game Over”文字）。",
+    "score": "1",
+    "rationale": "新增的代码片段显示，在碰撞检测通过后，会执行graphics.state = \"END\";。这表明游戏结束状态会被设置，后续应由图形渲染部分（graphics）负责向玩家显示“Game Over”等反馈。此能力未被破坏。"
+  },
+  {
+    "rubric_id": "R17",
+    "rubric_content": "食物生成算法应确保食物不会生成在蛇当前的身体所占用的网格位置上。",
+    "score": "1",
+    "rationale": "变更没有修改Food类的random_spawn()方法。只要该方法原本实现了避免生成在蛇身上的逻辑，此要求就仍然满足。"
+  },
+  {
+    "rubric_id": "R18",
+    "rubric_content": "游戏应能稳定运行，在长时间游戏或快速连续操作下不会出现内存泄漏或崩溃。",
+    "score": "1",
+    "rationale": "变更没有引入新的对象创建循环（如每帧创建大量新对象）、静态集合的误用或资源未释放等问题。Snake的body管理（add/remove）逻辑未被修改，因此内存泄漏或崩溃的风险没有增加。"
+  },
+  {
+    "rubric_id": "R19",
+    "rubric_content": "代码应提供一种简单的重新开始游戏的方式（例如，按某个键），且重新开始后所有游戏状态应被正确重置。",
+    "score": "1",
+    "rationale": "此要求与当前修复的边缘碰撞Bug无直接关系。变更内容没有涉及游戏重置逻辑，因此既没有破坏也没有增强此功能。假设原有重置功能存在且有效，则此项满足。"
+  }
+]
