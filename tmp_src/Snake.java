@@ -14,6 +14,12 @@ public class Snake {
     private String move;
 
     /**
+     * 下一步移动方向（输入缓冲）。
+     * 用于保证键盘输入在下一次 move() 前生效，避免边缘场景“按了但来不及转向”导致撞墙结束。
+     */
+    private String nextMove;
+
+    /**
      * Constructor - Initializes the snake with three segments at the center of the game board.
      */
     public Snake() {
@@ -36,6 +42,7 @@ public class Snake {
 
         // Default movement is "NOTHING" (snake doesn't move initially)
         move = "NOTHING";
+        nextMove = "NOTHING";
     }
 
     /**
@@ -44,10 +51,28 @@ public class Snake {
      * and removing the last segment to maintain the snake's length.
      */
 
-    public void move() {
+    public void move() { // Modified by diff script
+        // 在移动前应用输入缓冲，保证下一次移动使用最新方向
+        if (nextMove != null && !nextMove.equals("NOTHING")) {
+            move = nextMove;
+        }
+
         if (!move.equals("NOTHING")) { // Ensure the snake moves only if a direction is set
-            Rectangle temp = getNextHead();
-            
+            Rectangle first = body.get(0); // Get the current head position
+
+            Rectangle temp = new Rectangle(Game.dimension, Game.dimension);
+
+            // Determine the new head position based on the movement direction
+            if (move.equals("UP")) {
+                temp.setLocation(first.x, first.y - Game.dimension);
+            } else if (move.equals("DOWN")) {
+                temp.setLocation(first.x, first.y + Game.dimension);
+            } else if (move.equals("LEFT")) {
+                temp.setLocation(first.x - Game.dimension, first.y);
+            } else { // "RIGHT"
+                temp.setLocation(first.x + Game.dimension, first.y);
+            }
+
             // Add the new head to the front of the snake's body
             body.add(0, temp);
             // Remove the last segment to maintain the same length
@@ -60,37 +85,16 @@ public class Snake {
      */
 
     public void grow() {
-        Rectangle temp = getNextHead();
-        if (temp != null) {
-            // Add the new head to the front of the snake's body without removing the last segment (growth)
-            body.add(0, temp);
-        }
-    }
+        // Get the last segment (tail) of the snake
+        Rectangle last = body.get(body.size() - 1);
 
-    /**
-     * Calculates the position of the next head segment based on the current direction.
-     * @return The Rectangle representing the next head position, or null if not moving.
-     */
-    public Rectangle getNextHead() {
-        if (move.equals("NOTHING")) {
-            return null;
-        }
-
-        Rectangle first = body.get(0); // Get the current head position
+        // Create a new segment at the same position as the tail
+        // The next move() call will naturally separate them
         Rectangle temp = new Rectangle(Game.dimension, Game.dimension);
+        temp.setLocation(last.x, last.y);
 
-        // Determine the new head position based on the movement direction
-        if (move.equals("UP")) {
-            temp.setLocation(first.x, first.y - Game.dimension);
-        } else if (move.equals("DOWN")) {
-            temp.setLocation(first.x, first.y + Game.dimension);
-        } else if (move.equals("LEFT")) {
-            temp.setLocation(first.x - Game.dimension, first.y);
-        } else { // "RIGHT"
-            temp.setLocation(first.x + Game.dimension, first.y);
-        }
-        
-        return temp;
+        // Add the new segment to the end of the snake's body (growth at tail)
+        body.add(temp);
     }
 
     /**
@@ -133,20 +137,28 @@ public class Snake {
         return move;
     }
 
-    // Methods to change the movement direction of the snake
+    /**
+     * 设置下一步移动方向（输入缓冲）。
+     * @param nextMove 下一步方向：UP/DOWN/LEFT/RIGHT/NOTHING
+     */
+    public void setNextMove(String nextMove) {
+        this.nextMove = nextMove;
+    }
+
+    // Methods to change the movement direction of the snake（兼容旧调用：直接设置下一步方向）
     public void up() {
-        move = "UP";
+        nextMove = "UP";
     }
 
     public void down() {
-        move = "DOWN";
+        nextMove = "DOWN";
     }
 
     public void left() {
-        move = "LEFT";
+        nextMove = "LEFT";
     }
 
     public void right() {
-        move = "RIGHT";
+        nextMove = "RIGHT";
     }
 }

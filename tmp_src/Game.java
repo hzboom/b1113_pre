@@ -1,4 +1,3 @@
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
@@ -9,6 +8,7 @@ public class Game implements KeyListener {
     private Food food;
     private Graphics graphics;
 
+// Test comment added by diff script
     // Game window
     private JFrame window;
 
@@ -51,19 +51,14 @@ public class Game implements KeyListener {
 
     public void update() {
         if (graphics.state.equals("RUNNING")) { // Ensure the game is in running state
-            Rectangle nextHead = player.getNextHead();
-            if (nextHead != null) {
-                if (check_food_collision(nextHead)) {
-                    player.grow(); // Increase snake length
-                    food.random_spawn(); // Generate new food location
-                } else {
-                    player.move(); // Move the snake forward
-                }
-
-                if (check_wall_collision() || check_self_collision()) {
-                    graphics.state = "END"; // End the game on collision
-                }
+            player.move(); // Move the snake forward
+            if (check_food_collision()) {
+                player.grow(); // Increase snake length
+                food.random_spawn(); // Generate new food location
             }
+            if (check_wall_collision() || check_self_collision()) {
+                graphics.state = "END"; // End the game on collision
+            }            
         }
     }
 
@@ -79,12 +74,11 @@ public class Game implements KeyListener {
 
     /**
      * Checks if the snake's head collides with the food.
-     * @param head The position of the snake's head to check.
      * @return true if food is eaten, false otherwise.
      */
 
-    private boolean check_food_collision(Rectangle head) {
-        return (head.x == food.getX() * dimension && head.y == food.getY() * dimension);
+    private boolean check_food_collision() {
+        return (player.getX() == food.getX() * dimension && player.getY() == food.getY() * dimension);
     }
 
     /**
@@ -114,20 +108,20 @@ public class Game implements KeyListener {
         int keyCode = e.getKeyCode(); // Get the pressed key
 
         if (graphics.state.equals("RUNNING")) { // Ensure input is registered only when game is running
+            // 将输入意图写入“下一步方向”，保证在下一次移动前生效，减少边缘场景“来不及转向”的误判
             if (keyCode == KeyEvent.VK_W && !player.getMove().equals("DOWN")) {
-                player.up();
+                player.setNextMove("UP");
             }
             if (keyCode == KeyEvent.VK_S && !player.getMove().equals("UP")) {
-                player.down();
+                player.setNextMove("DOWN");
             }
             if (keyCode == KeyEvent.VK_A && !player.getMove().equals("RIGHT")) {
-                player.left();
+                player.setNextMove("LEFT");
             }
             if (keyCode == KeyEvent.VK_D && !player.getMove().equals("LEFT")) {
-                player.right();
+                player.setNextMove("RIGHT");
             }
-        }
-        else {
+        } else {
             this.start(); // Restart the game if it's not running
         }
     }

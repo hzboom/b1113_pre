@@ -1,0 +1,142 @@
+[
+  {
+    "rubric_id": "R01",
+    "rubric_content": "代码必须修复当蛇在靠近游戏区域边缘吃到食物时，游戏会立即结束的bug。",
+    "type": "Correctness",
+    "necessity": "Explicit",
+    "rationale": "题目Prompt的核心是描述一个具体的bug：在边缘吃到食物导致游戏结束。修复此bug是用户明确提出的核心要求，属于逻辑正确性范畴。可通过模型分析代码变更是否针对此问题进行了修复。"
+  },
+  {
+    "rubric_id": "R02",
+    "rubric_content": "代码必须确保蛇的碰撞检测逻辑（包括与墙壁和自身的碰撞）在蛇吃到食物的瞬间或移动过程中都能正确工作，不会因为检测顺序或条件判断错误而误判游戏结束。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "用户提到将碰撞检测从‘else if’改为‘if’后可能引入了问题。这暗示修复方案必须深入检查并确保碰撞检测逻辑的健壮性和时序正确性，这是从问题描述中推断出的核心隐性需求，属于逻辑正确性。"
+  },
+  {
+    "rubric_id": "R03",
+    "rubric_content": "代码必须确保蛇在吃到食物后，新身体段被正确添加，并且新身体段的初始位置不会与墙壁或蛇自身其他部分发生重叠（即不会在生成瞬间触发碰撞）。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "边缘吃到食物导致游戏结束的bug，很可能源于食物生成位置、蛇头新位置或新身体段生成位置的碰撞检测时序问题。确保生成逻辑安全是修复此类bug的隐含关键，属于逻辑正确性和边界条件。"
+  },
+  {
+    "rubric_id": "R04",
+    "rubric_content": "代码变更不应引入新的bug，例如允许蛇完全移出游戏网格（穿墙）或导致其他非预期的游戏行为。",
+    "type": "Correctness",
+    "necessity": "Explicit",
+    "rationale": "用户明确提到在修改前（使用else if时）存在‘能够跑到网格外面’的问题。因此，修复当前bug的同时，必须确保不回归到这个已发现的问题，这是明确的正确性要求。"
+  },
+  {
+    "rubric_id": "R05",
+    "rubric_content": "代码必须保持或改进原有的面向对象设计，例如对Snake, Food, Game等类的职责划分清晰，不破坏现有的模块化结构。",
+    "type": "Readability & Maintainability",
+    "necessity": "Implicit",
+    "rationale": "Repo介绍强调项目采用OOP思想，模块清晰。修改代码时应遵循这一设计原则，确保代码结构良好、易于维护。这是从项目背景中推断出的隐性需求。"
+  },
+  {
+    "rubric_id": "R06",
+    "rubric_content": "代码中的关键逻辑修改（如碰撞检测、食物消耗、蛇身增长）应有清晰的注释，解释修改的原因和逻辑。",
+    "type": "Documentation & Comments",
+    "necessity": "Implicit",
+    "rationale": "对于修复一个具体且可能涉及复杂时序的bug，添加注释有助于他人（包括未来的用户）理解修复方案，提高代码可维护性。这是良好的编程实践，属于隐性需求。"
+  },
+  {
+    "rubric_id": "R07",
+    "rubric_content": "代码应遵循Java命名规范（如类名大写驼峰，变量名小写驼峰），并且修改部分的命名应具有描述性。",
+    "type": "Coding Style",
+    "necessity": "Implicit",
+    "rationale": "保持一致的代码风格是任何Java项目的基本要求，有助于代码可读性。Repo介绍该项目适合初学者学习，良好的风格尤为重要。这是从通用编程规范和项目定位推断的隐性需求。"
+  },
+  {
+    "rubric_id": "R08",
+    "rubric_content": "游戏循环（Game Loop）的逻辑应保持清晰，确保画面更新、状态检查（输入、碰撞、吃食物）、渲染等步骤的顺序合理，不会因修复bug而变得混乱。",
+    "type": "Readability & Maintainability",
+    "necessity": "Implicit",
+    "rationale": "游戏循环是游戏逻辑的核心。对碰撞检测的修改可能影响循环内步骤的顺序或依赖关系。保持其清晰和合理是维护性的重要方面，属于隐性需求。"
+  },
+  {
+    "rubric_id": "R09",
+    "rubric_content": "修复方案不应显著降低游戏性能，例如在碰撞检测中引入时间复杂度为O(n^2)或更差的算法（相对于蛇身长度）。",
+    "type": "Efficiency & performance",
+    "necessity": "Implicit",
+    "rationale": "贪吃蛇游戏中，蛇身会变长。碰撞检测（尤其是自碰检测）的效率很重要。虽然题目未明确要求，但一个低效的修复方案在实际游戏中是不可接受的，属于合理的隐性性能要求。模型可能为了修复正确性而忽略性能优化。"
+  },
+  {
+    "rubric_id": "R10",
+    "rubric_content": "代码必须正确处理键盘事件（W/A/S/D），确保事件响应与蛇的移动更新之间没有冲突或延迟，修复bug后控制依然流畅。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "Repo介绍提到游戏提供流畅的键盘事件响应。对游戏核心逻辑的修改不应破坏这一特性。这是从项目描述中推断出的关于交互正确性的隐性需求。"
+  },
+  {
+    "rubric_id": "R11",
+    "rubric_content": "食物生成算法应确保食物不会生成在蛇的身体上，并且在修复边缘bug后，此功能依然正常工作。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "这是一个经典贪吃蛇游戏的基本规则。虽然当前bug不直接相关，但修改碰撞或食物相关代码时，必须确保不破坏这个基础功能，属于逻辑正确性的隐性要求。"
+  },
+  {
+    "rubric_id": "R12",
+    "rubric_content": "代码应避免使用魔法数字（Magic Numbers），对于网格大小、单元格尺寸、初始位置等常量应使用有意义的final变量或类常量表示。",
+    "type": "Coding Style",
+    "necessity": "Implicit",
+    "rationale": "使用常量而非魔法数字是提高代码可读性、可维护性和减少错误的重要实践。Repo介绍项目适合初学者，更应展示良好实践。这是隐性风格要求。"
+  },
+  {
+    "rubric_id": "R13",
+    "rubric_content": "修复方案应具备一定的健壮性，能够处理蛇在高速移动（玩家快速连续按键）时可能出现的边缘情况，例如在同一游戏循环帧内既吃到食物又发生碰撞的极端情况。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "用户提到“no matter how fast I click”，暗示了与操作速度相关。一个高质量的修复应考虑事件处理速率和游戏更新速率不匹配时的状态一致性，这是高级的、隐含的健壮性要求。模型可能只解决基本场景。"
+  },
+  {
+    "rubric_id": "R14",
+    "rubric_content": "代码不应包含任何明显的安全漏洞，例如通过游戏输入进行代码注入（虽然在此游戏上下文中可能性极低，但应避免eval等危险操作）。",
+    "type": "Security",
+    "necessity": "Implicit",
+    "rationale": "任何代码修改都应遵循基本的安全编程原则。尽管是一个本地桌面游戏，避免使用不安全的方法（如反序列化不可信数据、执行字符串代码）是通用的隐性安全要求。"
+  },
+  {
+    "rubric_id": "R15",
+    "rubric_content": "图形渲染（Graphics类或相关部分）的逻辑不应因游戏逻辑的修复而被破坏，确保画面能正确、实时地反映游戏状态（蛇、食物、分数等）。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "游戏状态与渲染分离是常见设计。修改游戏逻辑（Game/Snake）后，必须确保渲染组件能正确获取并显示最新状态，这是保证功能完整的隐性需求。"
+  },
+  {
+    "rubric_id": "R16",
+    "rubric_content": "代码变更应尽量保持局部性，避免对与当前bug无关的、稳定的代码模块进行不必要的大范围改动。",
+    "type": "Readability & Maintainability",
+    "necessity": "Implicit",
+    "rationale": "最小化变更范围是降低引入新bug风险、提高代码审查和维护效率的好实践。这是从软件工程最佳实践中推断的隐性可维护性要求。"
+  },
+  {
+    "rubric_id": "R17",
+    "rubric_content": "游戏在修复bug后，应能稳定运行至少N分钟（例如5分钟）或完成一个较长的游戏回合（蛇身变得很长）而不出现崩溃、内存泄漏或明显的性能下降。",
+    "type": "Efficiency & performance",
+    "necessity": "Implicit",
+    "rationale": "这是一个严格的、非功能性的性能与稳定性要求。模型生成的修复代码可能通过单元测试，但未必经过长时间运行的考验。这需要实际执行或更深入的分析来验证，符合“模型可能无法满足”的条件。"
+  },
+  {
+    "rubric_id": "R18",
+    "rubric_content": "如果引入了新的成员变量或方法，其访问修饰符（public/private/protected）应遵循最小权限原则，并符合OOP的封装思想。",
+    "type": "Coding Style",
+    "necessity": "Implicit",
+    "rationale": "良好的封装是OOP的核心。不恰当地暴露内部状态会增加耦合度和出错风险。这是从项目OOP设计和Java最佳实践中推断的隐性风格与设计要求。"
+  },
+  {
+    "rubric_id": "R19",
+    "rubric_content": "代码应包含必要的空值（Null）检查或防御性编程，特别是在从数据结构中获取对象或调用方法之前，以避免潜在的NullPointerException。",
+    "type": "Correctness",
+    "necessity": "Implicit",
+    "rationale": "健壮的Java代码应能处理潜在的null值。虽然简单游戏中可能不显著，但添加防御性检查是提高代码鲁棒性的好习惯，属于隐性正确性要求。模型可能只关注主逻辑而忽略这些细节。"
+  },
+  {
+    "rubric_id": "R20",
+    "rubric_content": "修复方案应当易于理解和调试，例如，如果使用了复杂的状态机或标志位来解决时序问题，应有清晰的文档或注释说明其状态转换图。",
+    "type": "Readability & Maintainability",
+    "necessity": "Implicit",
+    "rationale": "解决“边缘吃到食物”这类时序bug可能需要巧妙的逻辑。方案本身的可理解性至关重要，否则会给未来维护带来困难。这是一个高级的、关于代码表达清晰度的隐性要求。模型可能给出正确但晦涩的解决方案。"
+  }
+]
