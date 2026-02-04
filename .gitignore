@@ -3,6 +3,8 @@ script/
 prompt/
 config.json
 analysis.md
+out/
+diff_code.txt
 
 # IDE specific ignores
 .idea/
