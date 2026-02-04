@@ -94,7 +94,7 @@ public class Graphics extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        game.update(); // Update the game logic before rendering
         repaint(); // Refresh the screen
-        game.update(); // Update the game logic
     }
 }

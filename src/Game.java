@@ -107,20 +107,20 @@ public class Game implements KeyListener {
         int keyCode = e.getKeyCode(); // Get the pressed key
 
         if (graphics.state.equals("RUNNING")) { // Ensure input is registered only when game is running
+            // 将输入意图写入“下一步方向”，保证在下一次移动前生效，减少边缘场景“来不及转向”的误判
             if (keyCode == KeyEvent.VK_W && !player.getMove().equals("DOWN")) {
-                player.up();
+                player.setNextMove("UP");
             }
             if (keyCode == KeyEvent.VK_S && !player.getMove().equals("UP")) {
-                player.down();
+                player.setNextMove("DOWN");
             }
             if (keyCode == KeyEvent.VK_A && !player.getMove().equals("RIGHT")) {
-                player.left();
+                player.setNextMove("LEFT");
             }
             if (keyCode == KeyEvent.VK_D && !player.getMove().equals("LEFT")) {
-                player.right();
+                player.setNextMove("RIGHT");
             }
-        }
-        else {
+        } else {
             this.start(); // Restart the game if it's not running
         }
     }

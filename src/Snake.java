@@ -14,6 +14,12 @@ public class Snake {
     private String move;
 
     /**
+     * 下一步移动方向（输入缓冲）。
+     * 用于保证键盘输入在下一次 move() 前生效，避免边缘场景“按了但来不及转向”导致撞墙结束。
+     */
+    private String nextMove;
+
+    /**
      * Constructor - Initializes the snake with three segments at the center of the game board.
      */
     public Snake() {
@@ -36,6 +42,7 @@ public class Snake {
 
         // Default movement is "NOTHING" (snake doesn't move initially)
         move = "NOTHING";
+        nextMove = "NOTHING";
     }
 
     /**
@@ -45,6 +52,11 @@ public class Snake {
      */
 
     public void move() {
+        // 在移动前应用输入缓冲，保证下一次移动使用最新方向
+        if (nextMove != null && !nextMove.equals("NOTHING")) {
+            move = nextMove;
+        }
+
         if (!move.equals("NOTHING")) { // Ensure the snake moves only if a direction is set
             Rectangle first = body.get(0); // Get the current head position
 
@@ -125,20 +137,28 @@ public class Snake {
         return move;
     }
 
-    // Methods to change the movement direction of the snake
+    /**
+     * 设置下一步移动方向（输入缓冲）。
+     * @param nextMove 下一步方向：UP/DOWN/LEFT/RIGHT/NOTHING
+     */
+    public void setNextMove(String nextMove) {
+        this.nextMove = nextMove;
+    }
+
+    // Methods to change the movement direction of the snake（兼容旧调用：直接设置下一步方向）
     public void up() {
-        move = "UP";
+        nextMove = "UP";
     }
 
     public void down() {
-        move = "DOWN";
+        nextMove = "DOWN";
     }
 
     public void left() {
-        move = "LEFT";
+        nextMove = "LEFT";
     }
 
     public void right() {
-        move = "RIGHT";
+        nextMove = "RIGHT";
     }
 }

@@ -17,9 +17,9 @@ public class Food {
      */
 
     public void random_spawn() {
-        // Generate random X and Y coordinates within the game grid
-        x = (int) (Math.random() * (Game.width - 1));
-        y = (int) (Math.random() * (Game.height - 1));
+        // Generate random X and Y coordinates within the game grid (0..width-1 / 0..height-1)
+        x = (int) (Math.random() * Game.width);
+        y = (int) (Math.random() * Game.height);
     }
 
     // Getters and Setters
