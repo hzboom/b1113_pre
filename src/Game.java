@@ -50,21 +50,14 @@ public class Game implements KeyListener {
 
     public void update() {
         if (graphics.state.equals("RUNNING")) { // Ensure the game is in running state
-            // Predict next head position
-            int nextX = player.getNextX();
-            int nextY = player.getNextY();
-            // Check if the next position contains food
-            boolean willEatFood = (nextX == food.getX() * dimension && nextY == food.getY() * dimension);
-            if (willEatFood) {
-                player.setGrowPending(true); // Set flag to grow on this move
-            }
-            player.move(); // Move the snake forward (growth handled inside if flag is set)
-            if (willEatFood) {
+            player.move(); // Move the snake forward
+            if (check_food_collision()) {
+                player.grow(); // Increase snake length
                 food.random_spawn(); // Generate new food location
             }
             if (check_wall_collision() || check_self_collision()) {
                 graphics.state = "END"; // End the game on collision
-            }
+            }            
         }
     }
 
